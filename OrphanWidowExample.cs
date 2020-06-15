@@ -12,102 +12,102 @@ using iText.Layout.Properties;
 namespace OrphanWidow
 {
 
-public class OrphanWidowExample
-{
+    public class OrphanWidowExample
+    {
 
-public static readonly string DEST = "results/test/output/orphansWidows.pdf";
+        public static readonly string DEST = "results/test/output/orphansWidows.pdf";
 
-public static void Main(String[] args)
-{
-FileInfo file = new FileInfo(DEST);
-file.Directory.Create();
+        public static void Main(String[] args)
+        {
+            FileInfo file = new FileInfo(DEST);
+            file.Directory.Create();
 
-new OrphanWidowExample().ManipulatePdf(DEST);
-}
+            new OrphanWidowExample().ManipulatePdf(DEST);
+        }
 
-public void ManipulatePdf(string dest)
-{
-PdfDocument pdfDoc = new PdfDocument(new PdfWriter(dest));
-Document doc = new Document(pdfDoc);
+        public void ManipulatePdf(string dest)
+        {
+            PdfDocument pdfDoc = new PdfDocument(new PdfWriter(dest));
+            Document doc = new Document(pdfDoc);
 
-// The document is layouted in columns here in order to improve the visualization of how orphans and widows work.
-// Columns' heights and widths are defined so that several orphans and widows cases occur.
-Rectangle[] columns = GenerateColumns();
-doc.SetRenderer(new ColumnDocumentRenderer(doc, true, columns));
+            // The document is laid out  in columns here in order to improve the visualization of how orphans and widows work.
+            // Columns' heights and widths are defined so that several orphans and widows cases occur.
+            Rectangle[] columns = GenerateColumns();
+            doc.SetRenderer(new ColumnDocumentRenderer(doc, true, columns));
 
-// Paragraphs alternate background colors to ease the visual distinction between different paragraphs.
-Color[] colors = new Color[] { ColorConstants.LIGHT_GRAY, ColorConstants.GRAY };
+            // Paragraphs alternate background colors to ease the visual distinction between different paragraphs.
+            Color[] colors = new Color[] { ColorConstants.LIGHT_GRAY, ColorConstants.GRAY };
 
-IList<string> content = CreateParagraphContents();
-for (int i = 0; i < content.Count; i++)
-{
-Paragraph para = new Paragraph(content[i])
-.SetBackgroundColor(colors[i % 2]);
+            IList<string> content = CreateParagraphContents();
+            for (int i = 0; i < content.Count; i++)
+            {
+                Paragraph para = new Paragraph(content[i])
+                .SetBackgroundColor(colors[i % 2]);
 
-// Set orphan control property on a paragraph
-// that at least 2 lines must remain on the area before the break,
-// when paragraph has to be split because of an area break,
-// otherwise the entire paragraph should be pushed to the next area.
+                // Set orphan control property on a paragraph
+                // that at least 2 lines must remain on the area before the break,
+                // when paragraph has to be split because of an area break,
+                // otherwise the entire paragraph should be pushed to the next area.
 
-int minOrphansNum = 2;
-para.SetOrphansControl(new ParagraphOrphansControl(minOrphansNum));
+                int minOrphansNum = 2;
+                para.SetOrphansControl(new ParagraphOrphansControl(minOrphansNum));
 
-// Set widow control property on a paragraph
-// If custom handling of widow violation is needed, create a ParagraphWidowsControl extension
-// and override #handleViolatedWidows(ParagraphRenderer, String) accordingly.
+                // Set widow control property on a paragraph
+                // If custom handling of widow violation is needed, create a ParagraphWidowsControl extension
+                // and override #handleViolatedWidows(ParagraphRenderer, String) accordingly.
 
-int minWidowsNum = 2;
-int maxLinesToMove = 1;
-bool overflowParagraphOnViolation = true;
-para.SetWidowsControl(
-new ParagraphWidowsControl(minWidowsNum, maxLinesToMove, overflowParagraphOnViolation));
+                int minWidowsNum = 2;
+                int maxLinesToMove = 1;
+                bool overflowParagraphOnViolation = true;
+                para.SetWidowsControl(
+                new ParagraphWidowsControl(minWidowsNum, maxLinesToMove, overflowParagraphOnViolation));
 
-doc.Add(para);
-}
-doc.Close();
-}
+                doc.Add(para);
+            }
+            doc.Close();
+        }
 
-private static Rectangle[] GenerateColumns()
-{
-float margin = 40;
-float height = PageSize.A4.GetHeight() * 0.43f;
-float width = (PageSize.A4.GetWidth() - (2 * margin) - (margin / 2)) / 2;
-float bottom = (PageSize.A4.GetHeight() - height) / 2;
-Rectangle rectLeft = new Rectangle(margin, bottom, width, height);
-Rectangle rectRight = new Rectangle(margin + width + (margin / 2), bottom, width, height);
-return new Rectangle[] { rectLeft, rectRight };
-}
+        private static Rectangle[] GenerateColumns()
+        {
+            float margin = 40;
+            float height = PageSize.A4.GetHeight() * 0.43f;
+            float width = (PageSize.A4.GetWidth() - (2 * margin) - (margin / 2)) / 2;
+            float bottom = (PageSize.A4.GetHeight() - height) / 2;
+            Rectangle rectLeft = new Rectangle(margin, bottom, width, height);
+            Rectangle rectRight = new Rectangle(margin + width + (margin / 2), bottom, width, height);
+            return new Rectangle[] { rectLeft, rectRight };
+        }
 
-private static IList<string> CreateParagraphContents()
-{
-// Substrings of different lengths of the following string are used in order to create several orphans and widows cases.
+        private static IList<string> CreateParagraphContents()
+        {
+            // Substrings of different lengths of the following string are used in order to create several orphans and widows cases.
 
-string content = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget " +
-"dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, " +
-"nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis," +
-" sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, " +
-"vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. " +
-"Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus " +
-"elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor " +
-"eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, " +
-"feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. " +
-"Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi." +
-" Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem " +
-"quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit " +
-"vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. " +
-"Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci " +
-"eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec " +
-"sodales sagittis magna. Donec sodales sagittis magna. Donec sodales sagittis magna. " +
-"Donec sodales sagittis magna. Donec sodales sagittis magna.";
-int[] substringLengths = new int[] { 361, 339, 1421, 208, 1245, 1251, 1122, 1270, 1276, 1230, 1420, 1180, 1190, 807 };
+            string content = "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget " +
+            "dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, " +
+            "nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis," +
+            " sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, " +
+            "vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. " +
+            "Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibus. Vivamus " +
+            "elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, porttitor " +
+            "eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, " +
+            "feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. " +
+            "Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi." +
+            " Nam eget dui. Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem " +
+            "quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit " +
+            "vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. " +
+            "Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci " +
+            "eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec " +
+            "sodales sagittis magna. Donec sodales sagittis magna. Donec sodales sagittis magna. " +
+            "Donec sodales sagittis magna. Donec sodales sagittis magna.";
+            int[] substringLengths = new int[] { 361, 339, 1421, 208, 1245, 1251, 1122, 1270, 1276, 1230, 1420, 1180, 1190, 807 };
 
-IList<string> items = new List<string>(substringLengths.Length);
-for (int i = 0; i < substringLengths.Length; i++)
-{
-items.Add(content.Substring(0, substringLengths[i]));
-}
+            IList<string> items = new List<string>(substringLengths.Length);
+            for (int i = 0; i < substringLengths.Length; i++)
+            {
+                items.Add(content.Substring(0, substringLengths[i]));
+            }
 
-return items;
-}
-}
+            return items;
+        }
+    }
 }
